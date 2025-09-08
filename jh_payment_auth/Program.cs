@@ -15,9 +15,9 @@ builder.Services.AddDbContext<PaymentAuthDbContext>(options =>
 
 // Register the services for Dependency Injection.
 // The controller will receive the concrete implementations at runtime.
-builder.Services.AddSingleton<IUserService, UsersService>();
-builder.Services.AddSingleton<IUserRepository, UserRepository>();
-builder.Services.AddSingleton<IValidationService, ValidationService>();
+builder.Services.AddScoped<IUserService, UsersService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IValidationService, ValidationService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

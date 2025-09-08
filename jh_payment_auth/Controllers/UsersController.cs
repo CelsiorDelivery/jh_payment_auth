@@ -36,7 +36,7 @@ namespace jh_payment_auth.Controllers
         {
             var result = await _userService.RegisterUserAsync(request);
 
-            if (result.Errors.Count > 0)
+            if (result.Errors != null && result.Errors.Count > 0)
             {
                 result.Message = "User registration failed.";
                 return StatusCode(result.StatusCode, result);
@@ -45,7 +45,7 @@ namespace jh_payment_auth.Controllers
             {
                 result.StatusCode = StatusCodes.Status201Created;
                 result.Message = "User registered successfully.";
-                return Ok(result);
+                return StatusCode(result.StatusCode, result);
             }
         }
     }

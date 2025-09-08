@@ -33,6 +33,14 @@ namespace jh_payment_auth.Repositories
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Id)
                 .IsUnique();
+
+            // Configure AccountDetails as an owned entity.
+            // This tells EF Core to include its properties in the Users table.
+            modelBuilder.Entity<User>()
+                .OwnsOne(u => u.AccountDetails);
+
+            modelBuilder.Entity<User>()
+                .OwnsOne(u => u.Address);
         }
     }
 }

@@ -38,7 +38,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether the account is active.
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the current balance of the account.
