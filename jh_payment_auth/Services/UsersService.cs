@@ -37,6 +37,9 @@ namespace jh_payment_auth.Services
                 var validationErrors = _validationService.ValidateRegistrationRequest(request);
                 if (validationErrors.Count > 0)
                 {
+                    if (apiResponse.Errors == null)
+                        apiResponse.Errors = new List<string>();
+
                     apiResponse.Errors.AddRange(validationErrors);
                     apiResponse.StatusCode = StatusCodes.Status400BadRequest;
                     return apiResponse;
@@ -45,6 +48,9 @@ namespace jh_payment_auth.Services
                 // Step 2: Check for existing account number.
                 if (await _userRepository.UserAccountExistsAsync(request.AccountDetails.AccountNumber))
                 {
+                    if (apiResponse.Errors == null)
+                        apiResponse.Errors = new List<string>();
+
                     apiResponse.Errors.Add("User with this account number already exists");
                     apiResponse.StatusCode = StatusCodes.Status400BadRequest;
                     return apiResponse;
@@ -72,6 +78,9 @@ namespace jh_payment_auth.Services
             }
             catch (Exception ex)
             {
+                if (apiResponse.Errors == null)
+                    apiResponse.Errors = new List<string>();
+
                 apiResponse.Errors.Add("An error occurred while processing the request : " + ex);
                 apiResponse.StatusCode = StatusCodes.Status500InternalServerError;
             }

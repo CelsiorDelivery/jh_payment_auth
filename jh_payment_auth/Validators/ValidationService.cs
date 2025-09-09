@@ -1,4 +1,5 @@
 ﻿using jh_payment_auth.DTOs;
+using jh_payment_auth.Models;
 using System.Text.RegularExpressions;
 
 namespace jh_payment_auth.Validators
@@ -58,6 +59,24 @@ namespace jh_payment_auth.Validators
                 if (request.AccountDetails.Balance < 0)
                     errors.Add("Balance cannot be negative.");
 
+                // Validate AccountType enum
+                if (string.IsNullOrWhiteSpace(request.AccountDetails.AccountType))
+                {
+                    errors.Add("Account type is required.");
+                }
+                else if (!Enum.TryParse(request.AccountDetails.AccountType, true, out AccountType _))
+                {
+                    errors.Add("Invalid account type provided. Valid types are: Saving, Checking, Loan, Business.");
+                }
+
+                if (string.IsNullOrWhiteSpace(request.AccountDetails.RelationWithNominee))
+                {
+                    errors.Add("Relation with nominee is required.");
+                }
+                else if (!Enum.TryParse(request.AccountDetails.RelationWithNominee, true, out NomineeRelation _))
+                {
+                    errors.Add("Invalid Relation with nominee provided. Valid types are: Father, Mother, Spouse, Husband, Brother, Sister, Child");
+                }
             }
             return errors;
         }

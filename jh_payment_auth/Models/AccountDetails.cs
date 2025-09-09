@@ -21,9 +21,9 @@
         public string Branch { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the account (e.g., Savings, Checking, Business).
+        /// Gets or sets the type of the account (e.g., Savings, Checking, Loan, Business).
         /// </summary>
-        public AccountType AccountType { get; set; }
+        public string AccountType { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the nominee associated with the account.
@@ -31,14 +31,14 @@
         public string Nominee { get; set; }
 
         /// <summary>
-        /// Gets or sets the relationship of the nominee to the account holder.
+        /// Gets or sets the relationship of the nominee to the account holder(e.g., Father, Mother, Spouse, Husband, Brother, Sister, Child).
         /// </summary>
-        public NomineeRelation RelationWithNominee { get; set; }
+        public string RelationWithNominee { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the account is active.
         /// </summary>
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the current balance of the account.
@@ -51,8 +51,9 @@
     /// </summary>
     public enum AccountType
     {
-        Savings,
+        Saving,
         Checking,
+        Loan,
         Business
     }
 
