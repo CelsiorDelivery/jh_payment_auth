@@ -12,12 +12,14 @@ namespace jh_payment_auth.Services
     public class TokenManagementService : ITokenManagement
     {
         private readonly string _secretKey;
-        private const string Issuer = "yourdomain.com";
-        private const string Audience = "yourdomain.com";
+        private readonly string _issuer;
+        private readonly string _audience;
 
         public TokenManagementService(IConfiguration configuration)
         {
-            _secretKey = configuration["Jwt:SecretKey"] ?? throw new ArgumentNullException("Jwt:SecretKey not found in configuration.");
+            _secretKey = configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:SecretKey not found in configuration.");
+            _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer not found in configuration.");
+            _audience = configuration["Jwt:Audience"] ?? throw new ArgumentNullException("Jwt:Audience not found in configuration.");
         }
 
         /// <summary>
@@ -37,8 +39,8 @@ namespace jh_payment_auth.Services
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: Issuer,
-                audience: Audience,
+                issuer: _issuer,
+                audience: _audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds);
