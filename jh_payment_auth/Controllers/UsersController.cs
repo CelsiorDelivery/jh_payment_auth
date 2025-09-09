@@ -1,7 +1,11 @@
-﻿using jh_payment_auth.DTOs;
+﻿using jh_payment_auth.Constants;
+using jh_payment_auth.DTOs;
+using jh_payment_auth.Helpers;
 using jh_payment_auth.Services;
+using jh_payment_auth.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens.Experimental;
 
 namespace jh_payment_auth.Controllers
 {
@@ -16,9 +20,16 @@ namespace jh_payment_auth.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UsersController(IUserService registrationService)
+        private readonly IValidationService _validationService;
+        private readonly ILogger<UsersController> _logger;
+
+        public UsersController(IUserService registrationService,
+            IValidationService validationService,
+            ILogger<UsersController> logger)
         {
             _userService = registrationService;
+            _validationService = validationService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -34,18 +45,40 @@ namespace jh_payment_auth.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationRequest request)
         {
-            var result = await _userService.RegisterUserAsync(request);
+            ApiResponse apiResponse = new ApiResponse();
+            try
+            {
+                _logger.LogInformation("Received user registration request for email: {Email}", request.Email);
+                // Step 1: Validate the incoming request data, including new fields.
+                var validationErrors = _validationService.ValidateRegistrationRequest(request);
+                if (validationErrors.Count > 0)
+                {
+                    _logger.LogError("User registration validation failed: {Errors}", string.Join(", ", validationErrors));
+                    ErrorHandler.HandleErrors(ErrorMessages.UserValidationFailed, StatusCodes.Status400BadRequest, validationErrors, ref apiResponse);
+                    return StatusCode(apiResponse.StatusCode, apiResponse);
+                }
 
-            if (result.Errors != null && result.Errors.Count > 0)
-            {
-                result.Message = "User registration failed.";
-                return StatusCode(result.StatusCode, result);
+                apiResponse = await _userService.RegisterUserAsync(request);
+
+                if (apiResponse.Errors != null && apiResponse.Errors.Count > 0)
+                {
+                    _logger.LogError("User registration failed: {Errors}", string.Join(", ", apiResponse.Errors));
+                    apiResponse.Message = ErrorMessages.UserRegistrationFailed;
+                    return StatusCode(apiResponse.StatusCode, apiResponse);
+                }
+                else
+                {
+                    _logger.LogInformation("User registration successful for email: {Email}", request.Email);
+                    apiResponse.StatusCode = StatusCodes.Status201Created;
+                    apiResponse.Message = ErrorMessages.UserRegistrationSuccess;
+                    return StatusCode(apiResponse.StatusCode, apiResponse);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                result.StatusCode = StatusCodes.Status201Created;
-                result.Message = "User registered successfully.";
-                return StatusCode(result.StatusCode, result);
+                _logger.LogError(ex, "An exception occurred during user registration for email: {Email}", request.Email);
+                ErrorHandler.HandleError(ErrorMessages.UserRegistrationFailed, StatusCodes.Status500InternalServerError, ErrorMessages.ErrorOccurredWhileRegistringUser, ref apiResponse);
+                return StatusCode(apiResponse.StatusCode, apiResponse);
             }
         }
     }

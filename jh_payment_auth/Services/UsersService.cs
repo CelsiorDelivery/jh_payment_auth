@@ -1,4 +1,5 @@
-﻿using jh_payment_auth.DTOs;
+﻿using jh_payment_auth.Constants;
+using jh_payment_auth.DTOs;
 using jh_payment_auth.Helpers;
 using jh_payment_auth.Models;
 using jh_payment_auth.Repositories;
@@ -13,14 +14,12 @@ namespace jh_payment_auth.Services
     public class UsersService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IValidationService _validationService;
+        private readonly ILogger<UsersService> _logger;
 
-        public UsersService(
-            IUserRepository userRepository,
-            IValidationService validationService)
+        public UsersService(IUserRepository userRepository, ILogger<UsersService> logger)
         {
             _userRepository = userRepository;
-            _validationService = validationService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -33,26 +32,15 @@ namespace jh_payment_auth.Services
             ApiResponse apiResponse = new ApiResponse();
             try
             {
-                // Step 1: Validate the incoming request data, including new fields.
-                var validationErrors = _validationService.ValidateRegistrationRequest(request);
-                if (validationErrors.Count > 0)
-                {
-                    if (apiResponse.Errors == null)
-                        apiResponse.Errors = new List<string>();
-
-                    apiResponse.Errors.AddRange(validationErrors);
-                    apiResponse.StatusCode = StatusCodes.Status400BadRequest;
-                    return apiResponse;
-                }
-
+                _logger.LogInformation("Attempting to register new user with email: {Email}", request.Email);
+                _logger.LogInformation("Attempting to register new user with Account Number: {AccountNumber}", request.AccountDetails.AccountNumber);
+                
                 // Step 2: Check for existing account number.
                 if (await _userRepository.UserAccountExistsAsync(request.AccountDetails.AccountNumber))
                 {
-                    if (apiResponse.Errors == null)
-                        apiResponse.Errors = new List<string>();
-
-                    apiResponse.Errors.Add("User with this account number already exists");
-                    apiResponse.StatusCode = StatusCodes.Status400BadRequest;
+                    ErrorHandler.HandleError(null, StatusCodes.Status400BadRequest, ErrorMessages.UserAccountAlreadyExists, ref apiResponse);
+                    _logger.LogError("Registration failed: Account number {AccountNumber} already exists.", request.AccountDetails.AccountNumber);
+                    
                     return apiResponse;
                 }
 
@@ -75,14 +63,12 @@ namespace jh_payment_auth.Services
 
                 // Step 5: Persist the user data.
                 await _userRepository.AddUserAsync(newUser);
+                _logger.LogInformation("User with email: {Email} and Account Number: {AccountNumber} registered successfully.", request.Email, request.AccountDetails.AccountNumber);
             }
             catch (Exception ex)
             {
-                if (apiResponse.Errors == null)
-                    apiResponse.Errors = new List<string>();
-
-                apiResponse.Errors.Add("An error occurred while processing the request : " + ex);
-                apiResponse.StatusCode = StatusCodes.Status500InternalServerError;
+                ErrorHandler.HandleError(null, StatusCodes.Status500InternalServerError, ErrorMessages.ErrorOccurredWhileRegistringUser, ref apiResponse);                
+                _logger.LogError(ex, "An error occurred while registering user with account number: {AccountNumber}", request.AccountDetails.AccountNumber);
             }
 
             return apiResponse;
