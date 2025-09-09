@@ -3,6 +3,13 @@ using jh_payment_auth.Services;
 using jh_payment_auth.Validators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +21,11 @@ builder.Logging.AddDebug();
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 
 builder.Services.AddDbContext<PaymentAuthDbContext>(options =>
     options.UseInMemoryDatabase("PaymentAuthDb"));
@@ -32,6 +44,33 @@ builder.Services.AddSwaggerGen(c =>
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
+});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
+        };
+    });
+// Add API Versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0); // Default: v1.0
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true; // Shows supported versions in headers
+
+    // Accept version from URL, header, or query string
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new QueryStringApiVersionReader("api-version"),   // ?api-version=1.0
+        new HeaderApiVersionReader("X-Version"),          // Header: X-Version: 1.0
+        new MediaTypeApiVersionReader("ver"));            // Header: Content-Type: application/json;ver=1.0
 });
 
 var app = builder.Build();
