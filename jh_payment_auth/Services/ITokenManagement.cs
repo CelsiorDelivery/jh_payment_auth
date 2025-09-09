@@ -1,6 +1,9 @@
 ﻿namespace jh_payment_auth.Services
 {
-    interface ITokenManagement
+    /// <summary>
+    /// Generates and manages JWT tokens
+    /// </summary>
+    public interface ITokenManagement
     {
         string GenerateJwtToken(string userName);
     }
