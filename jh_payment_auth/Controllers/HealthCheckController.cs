@@ -3,10 +3,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace jh_payment_auth.Controllers
 {
+    /// <summary>
+    /// This controller provides a health check endpoint to verify that the authentication service is operational.
+    /// </summary>
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/auth/[Controller]")]
     public class HealthCheckController : Controller
     {
+        /// <summary>
+        /// The health check endpoint to verify that the service is running.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("healthcheck")]
         public ResponseModel HealthCheck()
         {

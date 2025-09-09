@@ -7,6 +7,9 @@ using System.Text;
 
 namespace jh_payment_auth.Services
 {
+    /// <summary>
+    /// This service handles user authentication, including validating user credentials and generating JWT tokens.
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly Dictionary<string, string> _users = new()
@@ -24,11 +27,23 @@ namespace jh_payment_auth.Services
             _tokenManagement = tokenManagement;
         }
 
+        /// <summary>
+        /// This method validates the user credentials against a predefined list of users.
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public bool ValidateUser(string username, string password)
         {
             return _users.TryGetValue(username, out var storedPassword) && storedPassword == password;
         }
 
+        /// <summary>
+        /// This method handles user login by validating credentials and generating a JWT token upon successful authentication.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public AuthResponse Login(LoginRequest request)
         {
             if (!ValidateUser(request.Username, request.Password))

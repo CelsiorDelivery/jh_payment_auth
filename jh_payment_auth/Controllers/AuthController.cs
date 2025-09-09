@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace jh_payment_auth.Controllers
 {
+    /// <summary>
+    /// This controller handles authentication-related operations such as user login and accessing secure data.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -16,6 +19,11 @@ namespace jh_payment_auth.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// This endpoint allows users to log in by providing their username and password.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("login")]
         public IActionResult Login([FromBody] Models.LoginRequest request)
         {
@@ -24,6 +32,10 @@ namespace jh_payment_auth.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// This endpoint returns secure data and requires the user to be authenticated.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("secure-data")]
         [Authorize]
         public IActionResult GetSecureData()
