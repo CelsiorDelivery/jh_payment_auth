@@ -1,4 +1,5 @@
-﻿using jh_payment_auth.Models;
+﻿using AuthDemoApi.Models;
+using jh_payment_auth.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,9 +16,12 @@ namespace jh_payment_auth.Services
         };
 
         private readonly IConfiguration _config;
-        public AuthService(IConfiguration config)
+        private readonly ITokenManagement _tokenManagement;
+
+        public AuthService(IConfiguration config, ITokenManagement tokenManagement)
         {
             _config = config;
+            _tokenManagement = tokenManagement;
         }
 
         public bool ValidateUser(string username, string password)
@@ -29,28 +33,19 @@ namespace jh_payment_auth.Services
         {
             if (!ValidateUser(request.Username, request.Password))
                 return null;
+            var validTo = _config["Jwt:ExpiryInSec"] ?? throw new ArgumentNullException("Jwt:expiry not found in configuration.");
 
-            var claims = new[]
+            var jwtToken = _tokenManagement.GenerateJwtToken(request.Username);
+
+            var response = new AuthenticateResponse
             {
-                new Claim(ClaimTypes.Name, request.Username),
-                new Claim(ClaimTypes.Role, request.Username == "admin" ? "Admin" : "User")
+                Token = jwtToken,
             };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
-                signingCredentials: creds
-            );
 
             return new AuthResponse
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                Expiration = token.ValidTo
+                Token = jwtToken,
+                Expiration = validTo
             };
         }
     }

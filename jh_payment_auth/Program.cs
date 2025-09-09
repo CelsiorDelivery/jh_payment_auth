@@ -1,11 +1,11 @@
 using jh_payment_auth.Repositories;
 using jh_payment_auth.Services;
 using jh_payment_auth.Validators;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -35,6 +35,7 @@ builder.Services.AddDbContext<PaymentAuthDbContext>(options =>
 builder.Services.AddScoped<IUserService, UsersService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<ITokenManagement, TokenManagementService>();
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
