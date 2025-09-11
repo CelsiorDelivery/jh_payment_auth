@@ -1,11 +1,11 @@
-﻿using jh_payment_auth.Services.Services;
+﻿using jh_payment_auth.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace jh_payment_auth.Controllers
 {
     /// <summary>
-    /// 
+    /// This controller handles authentication-related operations such as user login and accessing secure data.
     /// </summary>
     [ApiController]
     [ApiVersion("1.0")]
@@ -37,7 +37,7 @@ namespace jh_payment_auth.Controllers
         }
 
         /// <summary>
-        /// 
+        /// This endpoint returns secure data and requires the user to be authenticated.
         /// </summary>
         /// <returns></returns>
         [HttpGet("secure-data")]
