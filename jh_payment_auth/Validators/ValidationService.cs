@@ -5,8 +5,16 @@ using System.Text.RegularExpressions;
 
 namespace jh_payment_auth.Validators
 {
+    /// <summary>
+    /// This service implements the validation logic for user registration requests.
+    /// </summary>
     public class ValidationService : IValidationService
     {
+        /// <summary>
+        /// This method validates the user registration request to ensure all required fields are present and correctly formatted.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public List<string> ValidateRegistrationRequest(UserRegistrationRequest request)
         {
             var errors = new List<string>();
