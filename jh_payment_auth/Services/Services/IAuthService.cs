@@ -1,6 +1,6 @@
 ﻿using jh_payment_auth.Models;
 
-namespace jh_payment_auth.Services
+namespace jh_payment_auth.Services.Services
 {
     public interface IAuthService
     {

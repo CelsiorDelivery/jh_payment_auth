@@ -1,5 +1,6 @@
 using jh_payment_auth.Repositories;
 using jh_payment_auth.Services;
+using jh_payment_auth.Services.Services;
 using jh_payment_auth.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -72,6 +73,13 @@ builder.Services.AddApiVersioning(options =>
         new QueryStringApiVersionReader("api-version"),   // ?api-version=1.0
         new HeaderApiVersionReader("X-Version"),          // Header: X-Version: 1.0
         new MediaTypeApiVersionReader("ver"));            // Header: Content-Type: application/json;ver=1.0
+});
+
+builder.Services.AddHttpClient("PaymentDb-Microservice", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:5110/api/"); // Replace with target service URL
+    client.Timeout = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 });
 
 var app = builder.Build();

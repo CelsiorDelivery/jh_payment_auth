@@ -1,4 +1,4 @@
-﻿namespace AuthDemoApi.Models
+﻿namespace jh_payment_auth.DTOs
 {
     public class AuthenticateResponse
     {

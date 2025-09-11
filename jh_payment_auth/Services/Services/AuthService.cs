@@ -4,9 +4,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace jh_payment_auth.Services
+namespace jh_payment_auth.Services.Services
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly Dictionary<string, string> _users = new()
@@ -17,36 +21,64 @@ namespace jh_payment_auth.Services
 
         private readonly IConfiguration _config;
         private readonly ITokenManagement _tokenManagement;
+        private readonly ILogger<AuthService> _logger;
+        private readonly IHttpClientService _httpClientService;
 
-        public AuthService(IConfiguration config, ITokenManagement tokenManagement)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="tokenManagement"></param>
+        /// <param name="httpClientService"></param>
+        public AuthService(IConfiguration config, ITokenManagement tokenManagement, IHttpClientService httpClientService)
         {
             _config = config;
             _tokenManagement = tokenManagement;
+            _httpClientService = httpClientService;
         }
 
-        public bool ValidateUser(string username, string password)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<bool> ValidateUser(string username, string password)
         {
-            return _users.TryGetValue(username, out var storedPassword) && storedPassword == password;
+            var user = await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{username}");
+            if (user == null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
-        public AuthResponse Login(LoginRequest request)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task<ResponseModel> Login(LoginRequest request)
         {
-            if (!ValidateUser(request.Username, request.Password))
-                return null;
+            if (!await ValidateUser(request.Username, request.Password))
+            {
+                return ErrorResponseModel.Fail("Invalid username or password", "AUT001");
+            }
+
             var validTo = _config["Jwt:ExpiryInSec"] ?? throw new ArgumentNullException("Jwt:expiry not found in configuration.");
 
             var jwtToken = _tokenManagement.GenerateJwtToken(request.Username);
 
-            var response = new AuthenticateResponse
-            {
-                Token = jwtToken,
-            };
-
-            return new AuthResponse
-            {
-                Token = jwtToken,
-                Expiration = validTo
-            };
+            return ResponseModel.Ok(
+                 new AuthResponse
+                 {
+                     Token = jwtToken,
+                     Expiration = validTo
+                 },
+                 "Success"
+            );
         }
     }
 }
