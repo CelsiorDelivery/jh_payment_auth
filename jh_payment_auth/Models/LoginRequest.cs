@@ -1,5 +1,8 @@
 ﻿namespace jh_payment_auth.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class LoginRequest
     {
         public string Username { get; set; }

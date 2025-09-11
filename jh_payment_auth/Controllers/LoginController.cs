@@ -1,22 +1,34 @@
-﻿using jh_payment_auth.Models;
-using jh_payment_auth.Services;
+﻿using jh_payment_auth.Services.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace jh_payment_auth.Controllers
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/auth/[Controller]")]
+    public class LoginController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="authService"></param>
+        public LoginController(IAuthService authService)
         {
             _authService = authService;
         }
 
-        [HttpPost("login")]
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("signin")]
         public IActionResult Login([FromBody] Models.LoginRequest request)
         {
             var result = _authService.Login(request);
@@ -24,6 +36,10 @@ namespace jh_payment_auth.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("secure-data")]
         [Authorize]
         public IActionResult GetSecureData()
