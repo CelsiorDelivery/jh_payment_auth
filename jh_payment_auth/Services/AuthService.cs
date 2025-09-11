@@ -1,11 +1,11 @@
-﻿using AuthDemoApi.Models;
-using jh_payment_auth.Models;
+﻿using jh_payment_auth.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace jh_payment_auth.Services
+namespace jh_payment_auth.Services.Services
 {
     /// <summary>
     /// This service handles user authentication, including validating user credentials and generating JWT tokens.
@@ -20,48 +20,64 @@ namespace jh_payment_auth.Services
 
         private readonly IConfiguration _config;
         private readonly ITokenManagement _tokenManagement;
+        private readonly ILogger<AuthService> _logger;
+        private readonly IHttpClientService _httpClientService;
 
-        public AuthService(IConfiguration config, ITokenManagement tokenManagement)
+        /// <summary>
+        /// Constructor for AuthService.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="tokenManagement"></param>
+        /// <param name="httpClientService"></param>
+        public AuthService(IConfiguration config, ITokenManagement tokenManagement, IHttpClientService httpClientService)
         {
             _config = config;
             _tokenManagement = tokenManagement;
+            _httpClientService = httpClientService;
         }
 
         /// <summary>
-        /// This method validates the user credentials against a predefined list of users.
+        /// Validates the user credentials against a predefined list of users.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public bool ValidateUser(string username, string password)
+        public async Task<bool> ValidateUser(string username, string password)
         {
-            return _users.TryGetValue(username, out var storedPassword) && storedPassword == password;
+            var user = await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{username}");
+            if (user == null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
-        /// This method handles user login by validating credentials and generating a JWT token upon successful authentication.
+        /// Login method that validates user credentials and generates a JWT token upon successful authentication.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public AuthResponse Login(LoginRequest request)
+        public async Task<ResponseModel> Login(LoginRequest request)
         {
-            if (!ValidateUser(request.Username, request.Password))
-                return null;
+            if (!await ValidateUser(request.Username, request.Password))
+            {
+                return ErrorResponseModel.Fail("Invalid username or password", "AUT001");
+            }
+
             var validTo = _config["Jwt:ExpiryInSec"] ?? throw new ArgumentNullException("Jwt:expiry not found in configuration.");
 
             var jwtToken = _tokenManagement.GenerateJwtToken(request.Username);
 
-            var response = new AuthenticateResponse
-            {
-                Token = jwtToken,
-            };
-
-            return new AuthResponse
-            {
-                Token = jwtToken,
-                Expiration = validTo
-            };
+            return ResponseModel.Ok(
+                 new AuthResponse
+                 {
+                     Token = jwtToken,
+                     Expiration = validTo
+                 },
+                 "Success"
+            );
         }
     }
 }

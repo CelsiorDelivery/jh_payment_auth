@@ -1,4 +1,4 @@
-﻿namespace AuthDemoApi.Models
+﻿namespace jh_payment_auth.DTOs
 {
     /// <summary>
     /// The response returned after a successful authentication, containing the JWT token.

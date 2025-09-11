@@ -6,6 +6,7 @@ namespace jh_payment_auth.Controllers
     /// <summary>
     /// This controller provides a health check endpoint to verify that the authentication service is operational.
     /// </summary>
+    [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/auth/[Controller]")]
     public class HealthCheckController : Controller

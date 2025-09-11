@@ -1,7 +1,5 @@
-﻿using jh_payment_auth.Models;
-using jh_payment_auth.Services;
+﻿using jh_payment_auth.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace jh_payment_auth.Controllers
@@ -10,21 +8,27 @@ namespace jh_payment_auth.Controllers
     /// This controller handles authentication-related operations such as user login and accessing secure data.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/auth/[Controller]")]
+    public class LoginController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="authService"></param>
+        public LoginController(IAuthService authService)
         {
             _authService = authService;
         }
 
         /// <summary>
-        /// This endpoint allows users to log in by providing their username and password.
+        /// 
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("login")]
+        [HttpPost("signin")]
         public IActionResult Login([FromBody] Models.LoginRequest request)
         {
             var result = _authService.Login(request);

@@ -42,7 +42,7 @@ namespace jh_payment_auth.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the result of the registration operation.  Returns a 201 Created
         /// response with a success message if the registration is successful,  or a 500 Internal Server Error response
         /// with an error message if the registration fails.</returns>
-        [HttpPost]
+        [HttpPost("Registration")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationRequest request)
         {
             ApiResponse apiResponse = new ApiResponse();
