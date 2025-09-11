@@ -1,5 +1,8 @@
 ﻿namespace jh_payment_auth.Models
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class LoginRequest
     {
         public string Username { get; set; }
@@ -9,6 +12,6 @@
     public class AuthResponse
     {
         public string Token { get; set; }
-        public DateTime Expiration { get; set; }
+        public string Expiration { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace jh_payment_auth.Controllers
 {
+    [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/auth/[Controller]")]
     public class HealthCheckController : Controller

@@ -6,11 +6,21 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace jh_payment_auth.Services
 {
+    /// <summary>
+    /// Class that generates and manages JWT tokens
+    /// </summary>
     public class TokenManagementService : ITokenManagement
     {
-        private const string SecretKey = "your_super_secret_key";
-        private const string Issuer = "yourdomain.com";
-        private const string Audience = "yourdomain.com";
+        private readonly string _secretKey;
+        private readonly string _issuer;
+        private readonly string _audience;
+
+        public TokenManagementService(IConfiguration configuration)
+        {
+            _secretKey = configuration["Jwt:Key"] ?? throw new ArgumentNullException("Jwt:SecretKey not found in configuration.");
+            _issuer = configuration["Jwt:Issuer"] ?? throw new ArgumentNullException("Jwt:Issuer not found in configuration.");
+            _audience = configuration["Jwt:Audience"] ?? throw new ArgumentNullException("Jwt:Audience not found in configuration.");
+        }
 
         /// <summary>
         /// Generates JWT token
@@ -25,12 +35,12 @@ namespace jh_payment_auth.Services
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: Issuer,
-                audience: Audience,
+                issuer: _issuer,
+                audience: _audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(30),
                 signingCredentials: creds);

@@ -1,4 +1,6 @@
-﻿using jh_payment_auth.DTOs;
+﻿using jh_payment_auth.Constants;
+using jh_payment_auth.DTOs;
+using jh_payment_auth.Models;
 using System.Text.RegularExpressions;
 
 namespace jh_payment_auth.Validators
@@ -11,53 +13,71 @@ namespace jh_payment_auth.Validators
 
             // Existing validation rules
             if (string.IsNullOrWhiteSpace(request.FullName))
-                errors.Add("First name is required.");
+                errors.Add(ErrorMessages.FullNameRequired);
 
             if (string.IsNullOrWhiteSpace(request.Email) || !Regex.IsMatch(request.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-                errors.Add("A valid email address is required.");
+                errors.Add(ErrorMessages.EmailRequired);
 
             if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 8)
-                errors.Add("Password must be at least 8 characters long.");
+                errors.Add(ErrorMessages.PasswordTooShort);
 
             if (string.IsNullOrWhiteSpace(request.PhoneNumber) || !Regex.IsMatch(request.PhoneNumber, @"^\+?[1-9]\d{1,14}$"))
-                errors.Add("A valid phone number is required.");
+                errors.Add(ErrorMessages.PhoneNumberRequired);
 
             if (request.Age < 18)
-                errors.Add("User must be at least 18 years old.");
+                errors.Add(ErrorMessages.AgeRequirement);
 
 
             // New validation rules for address and account details.
             if (request.Address == null)
-                errors.Add("Address is required.");
+                errors.Add(ErrorMessages.AddressRequired);
             else
             {
                 if (string.IsNullOrWhiteSpace(request.Address.Street))
-                    errors.Add("Street is required.");
+                    errors.Add(ErrorMessages.StreetRequired);
                 if (string.IsNullOrWhiteSpace(request.Address.City))
-                    errors.Add("City is required.");
+                    errors.Add(ErrorMessages.CityRequired);
                 if (string.IsNullOrWhiteSpace(request.Address.State))
-                    errors.Add("State is required.");
+                    errors.Add(ErrorMessages.StateRequired);
                 if (string.IsNullOrWhiteSpace(request.Address.Country))
-                    errors.Add("Country is required.");
+                    errors.Add(ErrorMessages.CountryRequired);
                 if (string.IsNullOrWhiteSpace(request.Address.ZipCode))
-                    errors.Add("Zip code is required.");
+                    errors.Add(ErrorMessages.ZipCodeRequired);
             }        
 
             if (request.AccountDetails == null)
-                errors.Add("Account details are required.");
+                errors.Add(ErrorMessages.AccountDetailsRequired);
             else
             {
                 if (string.IsNullOrWhiteSpace(request.AccountDetails.AccountNumber) || !Regex.IsMatch(request.AccountDetails.AccountNumber, @"^\d{10,12}$"))
-                    errors.Add("A valid account number (10-12 digits) is required.");
+                    errors.Add(ErrorMessages.AccountNumberRequired);
                 if (string.IsNullOrWhiteSpace(request.AccountDetails.BankName))
-                    errors.Add("Bank name is required.");
+                    errors.Add(ErrorMessages.BankNameRequired);
                 if (string.IsNullOrWhiteSpace(request.AccountDetails.Branch))
-                    errors.Add("Branch is required.");
+                    errors.Add(ErrorMessages.BranchRequired);
                 if (string.IsNullOrWhiteSpace(request.AccountDetails.Nominee))
-                    errors.Add("Nominee is required.");
-                if (request.AccountDetails.Balance < 0)
-                    errors.Add("Balance cannot be negative.");
+                    errors.Add(ErrorMessages.NomineeRequired);
+                if (request.AccountDetails.Balance < 999)
+                    errors.Add(ErrorMessages.InitialDepositMinimum);
 
+                // Validate AccountType enum
+                if (string.IsNullOrWhiteSpace(request.AccountDetails.AccountType))
+                {
+                    errors.Add(ErrorMessages.AccountTypeRequired);
+                }
+                else if (!Enum.TryParse(request.AccountDetails.AccountType, true, out AccountType _))
+                {
+                    errors.Add(ErrorMessages.InvalidAccountType);
+                }
+
+                if (string.IsNullOrWhiteSpace(request.AccountDetails.RelationWithNominee))
+                {
+                    errors.Add(ErrorMessages.RelationshipRequired);
+                }
+                else if (!Enum.TryParse(request.AccountDetails.RelationWithNominee, true, out NomineeRelation _))
+                {
+                    errors.Add(ErrorMessages.InvalidRelationship);
+                }
             }
             return errors;
         }
