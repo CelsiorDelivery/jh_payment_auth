@@ -1,5 +1,4 @@
-﻿using AuthDemoApi.Models;
-using jh_payment_auth.Models;
+﻿using jh_payment_auth.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 namespace jh_payment_auth.Services.Services
 {
     /// <summary>
-    /// 
+    /// This service handles user authentication, including validating user credentials and generating JWT tokens.
     /// </summary>
     public class AuthService : IAuthService
     {
@@ -25,7 +24,7 @@ namespace jh_payment_auth.Services.Services
         private readonly IHttpClientService _httpClientService;
 
         /// <summary>
-        /// 
+        /// Constructor for AuthService.
         /// </summary>
         /// <param name="config"></param>
         /// <param name="tokenManagement"></param>
@@ -38,7 +37,7 @@ namespace jh_payment_auth.Services.Services
         }
 
         /// <summary>
-        /// 
+        /// Validates the user credentials against a predefined list of users.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
@@ -55,7 +54,7 @@ namespace jh_payment_auth.Services.Services
         }
 
         /// <summary>
-        /// 
+        /// Login method that validates user credentials and generates a JWT token upon successful authentication.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
