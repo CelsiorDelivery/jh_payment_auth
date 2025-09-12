@@ -36,36 +36,6 @@ namespace jh_payment_auth.Models
                 StatusCode = HttpStatusCode.OK,
                 Message = message ?? "Successfully completed"
             };
-        }
-
-        /// <summary>
-        /// This method creates a response model for bad requests with status code 400 (Bad Request).
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static ResponseModel BadRequest(string message)
-        {
-            return new ResponseModel
-            {
-                ResponseBody = "No content",
-                StatusCode = HttpStatusCode.BadRequest,
-                Message = message ?? "Bad Request"
-            };
-        }
-
-        /// <summary>
-        /// This method creates an internal server error response model with status code 500 (Internal Server Error).
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        public static ResponseModel InternalServerError(string message)
-        {
-            return new ResponseModel
-            {
-                ResponseBody = "No content",
-                StatusCode = HttpStatusCode.InternalServerError,
-                Message = message ?? "Internal Server Error"
-            };
-        }
+        }        
     }
 }
