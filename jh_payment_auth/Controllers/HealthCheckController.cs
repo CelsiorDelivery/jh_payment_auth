@@ -8,7 +8,7 @@ namespace jh_payment_auth.Controllers
     /// </summary>
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/auth/[Controller]")]
+    [Route("api/v{version:apiVersion}/auth-service/[Controller]")]
     public class HealthCheckController : Controller
     {
         /// <summary>

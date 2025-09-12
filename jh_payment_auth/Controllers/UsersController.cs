@@ -1,6 +1,7 @@
 ﻿using jh_payment_auth.Constants;
 using jh_payment_auth.DTOs;
 using jh_payment_auth.Helpers;
+using jh_payment_auth.Models;
 using jh_payment_auth.Services;
 using jh_payment_auth.Validators;
 using Microsoft.AspNetCore.Http;
@@ -15,20 +16,18 @@ namespace jh_payment_auth.Controllers
     /// <remarks>This controller handles user-related requests and delegates the operations to the underlying
     /// user service. It is designed to process HTTP requests for user management, including creating new
     /// users.</remarks>
-    [Route("api/v1/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/auth-service/[Controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IValidationService _validationService;
         private readonly ILogger<UsersController> _logger;
 
         public UsersController(IUserService registrationService,
-            IValidationService validationService,
             ILogger<UsersController> logger)
         {
             _userService = registrationService;
-            _validationService = validationService;
             _logger = logger;
         }
 
@@ -42,43 +41,35 @@ namespace jh_payment_auth.Controllers
         /// <returns>An <see cref="IActionResult"/> containing the result of the registration operation.  Returns a 201 Created
         /// response with a success message if the registration is successful,  or a 500 Internal Server Error response
         /// with an error message if the registration fails.</returns>
-        [HttpPost("Registration")]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationRequest request)
         {
-            ApiResponse apiResponse = new ApiResponse();
+            ResponseModel apiResponse = new ResponseModel();
             try
             {
                 _logger.LogInformation("Received user registration request for email: {Email}", request.Email);
-                // Step 1: Validate the incoming request data, including new fields.
-                var validationErrors = _validationService.ValidateRegistrationRequest(request);
-                if (validationErrors.Count > 0)
-                {
-                    _logger.LogError("User registration validation failed: {Errors}", string.Join(", ", validationErrors));
-                    ErrorHandler.HandleErrors(ErrorMessages.UserValidationFailed, StatusCodes.Status400BadRequest, validationErrors, ref apiResponse);
-                    return StatusCode(apiResponse.StatusCode, apiResponse);
-                }
-
+                
                 apiResponse = await _userService.RegisterUserAsync(request);
 
-                if (apiResponse.Errors != null && apiResponse.Errors.Count > 0)
+                if (apiResponse.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    _logger.LogError("User registration failed: {Errors}", string.Join(", ", apiResponse.Errors));
-                    apiResponse.Message = ErrorMessages.UserRegistrationFailed;
-                    return StatusCode(apiResponse.StatusCode, apiResponse);
+                    _logger.LogError("User registration failed: {Errors}");
+                    apiResponse.Message = UserErrorMessages.UserRegistrationFailed;
+                    return StatusCode(((int)apiResponse.StatusCode), apiResponse);
+                    
                 }
                 else
                 {
-                    _logger.LogInformation("User registration successful for email: {Email}", request.Email);
-                    apiResponse.StatusCode = StatusCodes.Status201Created;
-                    apiResponse.Message = ErrorMessages.UserRegistrationSuccess;
-                    return StatusCode(apiResponse.StatusCode, apiResponse);
+                    _logger.LogInformation("User registration successful for email: {Email}", request.Email);                    
+                    apiResponse.Message = UserErrorMessages.UserRegistrationSuccess;
+                    return Ok(apiResponse);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An exception occurred during user registration for email: {Email}", request.Email);
-                ErrorHandler.HandleError(ErrorMessages.UserRegistrationFailed, StatusCodes.Status500InternalServerError, ErrorMessages.ErrorOccurredWhileRegistringUser, ref apiResponse);
-                return StatusCode(apiResponse.StatusCode, apiResponse);
+                apiResponse = ErrorResponseModel.InternalServerError(UserErrorMessages.ErrorOccurredWhileRegistringUser, UserErrorMessages.ErrorOccurredWhileRegistringUserCode);
+                return StatusCode(((int)apiResponse.StatusCode), apiResponse);
             }
         }
     }

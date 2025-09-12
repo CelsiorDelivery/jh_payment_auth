@@ -1,8 +1,8 @@
 ﻿using jh_payment_auth.Constants;
 using jh_payment_auth.DTOs;
+using jh_payment_auth.Entity;
 using jh_payment_auth.Helpers;
 using jh_payment_auth.Models;
-using jh_payment_auth.Repositories;
 using jh_payment_auth.Validators;
 using Microsoft.AspNetCore.Identity;
 
@@ -13,13 +13,16 @@ namespace jh_payment_auth.Services
     /// </summary>
     public class UsersService : IUserService
     {
-        private readonly IUserRepository _userRepository;
         private readonly ILogger<UsersService> _logger;
+        private readonly IValidationService _validationService;
+        private readonly IHttpClientService _httpClientService;
 
-        public UsersService(IUserRepository userRepository, ILogger<UsersService> logger)
+        public UsersService(ILogger<UsersService> logger,
+            IValidationService validationService, IHttpClientService httpClientService)
         {
-            _userRepository = userRepository;
             _logger = logger;
+            _validationService = validationService;
+            _httpClientService = httpClientService;
         }
 
         /// <summary>
@@ -27,21 +30,27 @@ namespace jh_payment_auth.Services
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<ApiResponse> RegisterUserAsync(UserRegistrationRequest request)
+        public async Task<ResponseModel> RegisterUserAsync(UserRegistrationRequest request)
         {
-            ApiResponse apiResponse = new ApiResponse();
             try
             {
                 _logger.LogInformation("Attempting to register new user with email: {Email}", request.Email);
                 _logger.LogInformation("Attempting to register new user with Account Number: {AccountNumber}", request.AccountDetails.AccountNumber);
-                
-                // Step 2: Check for existing account number.
-                if (await _userRepository.UserAccountExistsAsync(request.AccountDetails.AccountNumber))
+
+                // Step 1: Validate the incoming request data, including new fields.
+                var validationErrors = _validationService.ValidateRegistrationRequest(request);
+                if (validationErrors.Count > 0)
                 {
-                    ErrorHandler.HandleError(null, StatusCodes.Status400BadRequest, ErrorMessages.UserAccountAlreadyExists, ref apiResponse);
-                    _logger.LogError("Registration failed: Account number {AccountNumber} already exists.", request.AccountDetails.AccountNumber);
-                    
-                    return apiResponse;
+                    _logger.LogError("User registration validation failed: {Errors}", string.Join(", ", validationErrors));
+                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserValidationFailed+" Validation Errors: \n"+ string.Join(", ", validationErrors), UserErrorMessages.UserValidationFailedCode);                    
+                }
+
+                // Step 2: Check for existing user.
+                var user = await GetUserData(request.UserId);
+                if (user != null)
+                {
+                    _logger.LogError("Registration failed: User with the id {UserId} already exists.", request.UserId);
+                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserAccountAlreadyExists, UserErrorMessages.UserAlreadyExistsCode);
                 }
 
                 // Step 3: Hash the password for security.
@@ -50,28 +59,67 @@ namespace jh_payment_auth.Services
                 // Step 4: Create the new user model, mapping all fields from the request.
                 var newUser = new User
                 {
-                    Id = Guid.NewGuid().ToString(),
+                    UserId = request.UserId,
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
                     Email = request.Email,
                     Password = hashedPassword,
-                    FullName = request.FullName,
                     Age = request.Age,
-                    PhoneNumber = request.PhoneNumber,
-                    Address = request.Address,
-                    AccountDetails = request.AccountDetails,
-
+                    Mobile = request.PhoneNumber,
+                    Address = request.Address.Street+", "+request.Address.City,
+                    AccountNumber = request.AccountDetails.AccountNumber,
+                    BankName = request.AccountDetails.BankName,
+                    IFCCode = request.AccountDetails.IFSCCode,
+                    Branch = request.AccountDetails.Branch,
+                    IsActive = true,
+                    CVV = request.AccountDetails.CVV,
+                    DateOfExpiry = request.AccountDetails.DateOfExpiry,
+                    UPIID = request.AccountDetails.UPIId,
                 };
 
                 // Step 5: Persist the user data.
-                await _userRepository.AddUserAsync(newUser);
+                var response = await AddUserData(newUser);
+                if (response == null)
+                {
+                    _logger.LogError("User registration failed for email: {Email} and Account Number: {AccountNumber}", request.Email, request.AccountDetails.AccountNumber);
+                    return ErrorResponseModel.InternalServerError(UserErrorMessages.UserRegistrationFailed,UserErrorMessages.UserRegistrationFailedCode);
+                }
+
                 _logger.LogInformation("User with email: {Email} and Account Number: {AccountNumber} registered successfully.", request.Email, request.AccountDetails.AccountNumber);
             }
             catch (Exception ex)
             {
-                ErrorHandler.HandleError(null, StatusCodes.Status500InternalServerError, ErrorMessages.ErrorOccurredWhileRegistringUser, ref apiResponse);                
                 _logger.LogError(ex, "An error occurred while registering user with account number: {AccountNumber}", request.AccountDetails.AccountNumber);
+                return ErrorResponseModel.InternalServerError(UserErrorMessages.ErrorOccurredWhileRegistringUser, UserErrorMessages.ErrorOccurredWhileRegistringUserCode);
             }
 
-            return apiResponse;
+            return ResponseModel.Ok(request,UserErrorMessages.UserRegistrationSuccess);
+        }
+
+        private async Task<ResponseModel> AddUserData(User user)
+        {
+            try
+            {
+                return await _httpClientService.PostAsync<User,ResponseModel>("v1/perops/user/adduser", user);                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while adding User:");
+            }
+            return null;
+        }
+
+        private async Task<User> GetUserData(long userId)
+        {
+            try
+            {
+                return await _httpClientService.GetAsync<User>("v1/perops/user/getuser/" + userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "User not found");
+            }
+            return null;
         }
     }
 }

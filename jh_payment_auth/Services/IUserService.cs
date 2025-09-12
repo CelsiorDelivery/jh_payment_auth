@@ -1,4 +1,5 @@
 ﻿using jh_payment_auth.DTOs;
+using jh_payment_auth.Models;
 
 namespace jh_payment_auth.Services
 {
@@ -11,7 +12,7 @@ namespace jh_payment_auth.Services
         /// User registration process, including validation, duplication checks, password hashing, and storing user data.
         /// </summary>
         /// <param name="request"></param>
-        /// <returns></returns>
-        Task<ApiResponse> RegisterUserAsync(UserRegistrationRequest request);
+        /// <returns>ResponseModel</returns>
+        Task<ResponseModel> RegisterUserAsync(UserRegistrationRequest request);
     }
 }
