@@ -1,4 +1,3 @@
-using jh_payment_auth.Repositories;
 using jh_payment_auth.Services;
 using jh_payment_auth.Services.Services;
 using jh_payment_auth.Validators;
@@ -26,14 +25,10 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-
-builder.Services.AddDbContext<PaymentAuthDbContext>(options =>
-    options.UseInMemoryDatabase("PaymentAuthDb"));
-
 // Register the services for Dependency Injection.
 // The controller will receive the concrete implementations at runtime.
+builder.Services.AddSingleton<IHttpClientService, HttpClientService>();
 builder.Services.AddScoped<IUserService, UsersService>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
 builder.Services.AddScoped<ITokenManagement, TokenManagementService>();
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -76,7 +71,7 @@ builder.Services.AddApiVersioning(options =>
 
 builder.Services.AddHttpClient("PaymentDb-Microservice", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:5110/api/"); // Replace with target service URL
+    client.BaseAddress = new Uri("http://localhost:5110/api/"); // Replace with target service URL
     client.Timeout = TimeSpan.FromSeconds(30);
     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 });

@@ -21,6 +21,26 @@
         public string Branch { get; set; }
 
         /// <summary>
+        /// Represents the Indian Financial System Code (IFSC) of the bank branch.
+        /// </summary>
+        public string IFSCCode { get; set; }
+
+        /// <summary>
+        /// Represents the CVV
+        /// </summary>
+        public string CVV {  get; set; }
+
+        /// <summary>
+        /// Represents the UPI id
+        /// </summary>
+        public string UPIId { get; set; }
+
+        /// <summary>
+        /// Represents the Expiry for CVV
+        /// </summary>
+        public DateTime DateOfExpiry { get; set; }
+
+        /// <summary>
         /// Gets or sets the type of the account (e.g., Savings, Checking, Loan, Business).
         /// </summary>
         public string AccountType { get; set; }
