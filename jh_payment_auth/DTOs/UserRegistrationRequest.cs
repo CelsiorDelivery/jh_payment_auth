@@ -9,9 +9,19 @@ namespace jh_payment_auth.DTOs
     public class UserRegistrationRequest
     {
         /// <summary>
-        /// Gets or sets the full name of the user.
+        /// Represents the unique identifier for the user.
         /// </summary>
-        public string FullName { get; set; }
+        public long UserId { set; get; }
+
+        /// <summary>
+        /// Gets or sets the first name of the user.
+        /// </summary>
+        public string FirstName { get; set; }
+
+        /// <summary>
+        /// Represents the last name of the user.
+        /// </summary>
+        public string LastName { get; set; }
 
         /// <summary>
         /// Gets or sets the age of the user.
