@@ -29,9 +29,9 @@ namespace jh_payment_auth.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("signin")]
-        public IActionResult Login([FromBody] Models.LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] Models.LoginRequest request)
         {
-            var result = _authService.Login(request);
+            var result = await _authService.Login(request);
             if (result == null) return Unauthorized("Invalid username or password");
             return Ok(result);
         }
