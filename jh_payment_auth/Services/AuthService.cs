@@ -1,10 +1,5 @@
 ﻿using jh_payment_auth.Entity;
 using jh_payment_auth.Models;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace jh_payment_auth.Services.Services
 {
@@ -48,10 +43,10 @@ namespace jh_payment_auth.Services.Services
             var user = await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{username}");
             if (user == null)
             {
-                return true;
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         /// <summary>
