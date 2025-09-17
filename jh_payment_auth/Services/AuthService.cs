@@ -62,18 +62,47 @@ namespace jh_payment_auth.Services.Services
                 return ErrorResponseModel.BadRequest("Invalid username or password", "AUT001");
             }
 
-            var validTo = _config["Jwt:ExpiryInSec"] ?? throw new ArgumentNullException("Jwt:expiry not found in configuration.");
-
             var jwtToken = _tokenManagement.GenerateJwtToken(user);
+            var refreshToken = _tokenManagement.CreateRefreshToken(request.UserEmail);
 
             return ResponseModel.Ok(
                  new AuthResponse
                  {
-                     Token = jwtToken,
-                     Expiration = validTo
+                     AccessToken = jwtToken,
+                     RefreshToken = refreshToken.RefreshToken,
+                     Expiration = refreshToken.ExpiryDate
                  },
                  "Success"
             );
+        }
+
+        /// <summary>
+        /// This method refreshes the JWT token using the provided refresh token.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> RefreshToken(RefreshTokenModel request)
+        {
+            var user = await ValidateUser(request.UserEmail, string.Empty);
+            if (user == null)
+            {
+                return ErrorResponseModel.BadRequest("Invalid user", "AUT005");
+            }
+
+            var result = _tokenManagement.RefreshAccessToken(request);
+
+            if (!result.Success)
+            {
+                return ErrorResponseModel.InternalServerError(result.Error, "AUT006");
+            }
+
+            return ResponseModel.Ok(new RefreshTokenResult
+            {
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                RefreshTokenExpiryDate = result.RefreshTokenExpiryDate,
+                Success = result.Success
+            }, "Success");            
         }
     }
 }

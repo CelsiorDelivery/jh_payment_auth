@@ -42,7 +42,7 @@ namespace jh_payment_auth.Services
                 if (validationErrors.Count > 0)
                 {
                     _logger.LogError("User registration validation failed: {Errors}", string.Join(", ", validationErrors));
-                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserValidationFailed+" Validation Errors: \n"+ string.Join(", ", validationErrors), UserErrorMessages.UserValidationFailedCode);                    
+                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserValidationFailed + " Validation Errors: \n" + string.Join(", ", validationErrors), UserErrorMessages.UserValidationFailedCode);
                 }
 
                 // Step 2: Check for existing user.
@@ -85,7 +85,7 @@ namespace jh_payment_auth.Services
                 if (response == null)
                 {
                     _logger.LogError("User registration failed for email: {Email} and Account Number: {AccountNumber}", request.Email, request.AccountDetails.AccountNumber);
-                    return ErrorResponseModel.InternalServerError(UserErrorMessages.UserRegistrationFailed,UserErrorMessages.UserRegistrationFailedCode);
+                    return ErrorResponseModel.InternalServerError(UserErrorMessages.UserRegistrationFailed, UserErrorMessages.UserRegistrationFailedCode);
                 }
 
                 _logger.LogInformation("User with email: {Email} and Account Number: {AccountNumber} registered successfully.", request.Email, request.AccountDetails.AccountNumber);
@@ -103,7 +103,7 @@ namespace jh_payment_auth.Services
         {
             try
             {
-                return await _httpClientService.PostAsync<User,ResponseModel>("v1/perops/user/adduser", user);                
+                return await _httpClientService.PostAsync<User, ResponseModel>("v1/perops/user/adduser", user);
             }
             catch (Exception ex)
             {
