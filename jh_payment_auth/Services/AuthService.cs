@@ -89,7 +89,7 @@ namespace jh_payment_auth.Services.Services
                 return ErrorResponseModel.BadRequest("Invalid user", "AUT005");
             }
 
-            var result = _tokenManagement.RefreshAccessToken(request);
+            var result = _tokenManagement.RefreshAccessToken(request, user);
 
             if (!result.Success)
             {

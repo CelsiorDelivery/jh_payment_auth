@@ -7,6 +7,6 @@ namespace jh_payment_auth.Services
     {
         Task<ResponseModel> Login(LoginRequest request);
         Task<User> ValidateUser(string username, string password);
-        Task<ResponseModel> RefreshToken(RefreshTokenModel request)
+        Task<ResponseModel> RefreshToken(RefreshTokenModel request);
     }
 }
