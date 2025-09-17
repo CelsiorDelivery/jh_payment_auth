@@ -6,9 +6,9 @@
     public class LoginRequest
     {
         /// <summary>
-        /// Represents the username of the user attempting to log in.
+        /// Represents the user email of the user attempting to log in.
         /// </summary>
-        public string Username { get; set; }
+        public string UserEmail { get; set; }
 
         /// <summary>
         /// Represents the password of the user attempting to log in.

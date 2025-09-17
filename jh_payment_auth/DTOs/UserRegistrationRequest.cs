@@ -1,4 +1,5 @@
-﻿using jh_payment_auth.Models;
+﻿using jh_payment_auth.Entity;
+using jh_payment_auth.Models;
 using System.Net;
 
 namespace jh_payment_auth.DTOs
@@ -52,5 +53,7 @@ namespace jh_payment_auth.DTOs
         /// Gets or sets the account details of the user.
         /// </summary>
         public AccountDetails AccountDetails { get; set; }
+
+        public Roles Role { set; get; } = Roles.User;
     }
 }

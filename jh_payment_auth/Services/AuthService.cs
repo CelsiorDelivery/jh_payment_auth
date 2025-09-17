@@ -40,18 +40,12 @@ namespace jh_payment_auth.Services.Services
         /// <summary>
         /// Validates the user credentials against a predefined list of users.
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="userEmail"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<bool> ValidateUser(string username, string password)
+        public async Task<User> ValidateUser(string userEmail, string password)
         {
-            var user = await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{username}");
-            if (user == null)
-            {
-                return true;
-            }
-
-            return false;
+            return await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{userEmail}");
         }
 
         /// <summary>
@@ -62,14 +56,15 @@ namespace jh_payment_auth.Services.Services
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<ResponseModel> Login(LoginRequest request)
         {
-            if (!await ValidateUser(request.Username, request.Password))
+            var user = await ValidateUser(request.UserEmail, request.Password);
+            if (user == null)
             {
-                return ErrorResponseModel.Fail("Invalid username or password", "AUT001");
+                return ErrorResponseModel.BadRequest("Invalid username or password", "AUT001");
             }
 
             var validTo = _config["Jwt:ExpiryInSec"] ?? throw new ArgumentNullException("Jwt:expiry not found in configuration.");
 
-            var jwtToken = _tokenManagement.GenerateJwtToken(request.Username);
+            var jwtToken = _tokenManagement.GenerateJwtToken(user);
 
             return ResponseModel.Ok(
                  new AuthResponse

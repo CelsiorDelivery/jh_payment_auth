@@ -1,8 +1,8 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using jh_payment_auth.Entity;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace jh_payment_auth.Services
 {
@@ -27,12 +27,15 @@ namespace jh_payment_auth.Services
         /// </summary>
         /// <param name="username"></param>
         /// <returns>JWT token string</returns>
-        public string GenerateJwtToken(string username)
+        public string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
-                    new Claim(JwtRegisteredClaimNames.Sub, username),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    //new Claim(JwtRegisteredClaimNames.Sub, user.FirstName),
+                    //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    new Claim(ClaimTypes.NameIdentifier, user.FirstName),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
                 };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));

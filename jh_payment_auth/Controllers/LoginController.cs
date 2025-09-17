@@ -29,10 +29,13 @@ namespace jh_payment_auth.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("signin")]
-        public IActionResult Login([FromBody] Models.LoginRequest request)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] Models.LoginRequest request)
         {
-            var result = _authService.Login(request);
-            if (result == null) return Unauthorized("Invalid username or password");
+            var result = await _authService.Login(request);
+            if (result == null || result.StatusCode != System.Net.HttpStatusCode.OK) 
+                return Unauthorized("Invalid username or password");
+
             return Ok(result);
         }
 
@@ -46,6 +49,20 @@ namespace jh_payment_auth.Controllers
         {
             var username = User.Identity?.Name;
             return Ok(new { Message = $"Hello {username}, you are authenticated!" });
+        }
+
+        [HttpGet("admin-only")]
+        [Authorize(Policy = "AdminOnly")] // Requires a valid JWT token with the "Admin" role claim.
+        public IActionResult AdminOnlyEndpoint()
+        {
+            return Ok("This is a protected resource for Admins only.");
+        }
+
+        [HttpGet("merchant-only")]
+        [Authorize(Policy = "MerchantOnly")] // Requires a valid JWT token with the "Merchant" role claim.
+        public IActionResult MerchantOnlyEndpoint()
+        {
+            return Ok("This is a protected resource for Merchants only.");
         }
     }
 }

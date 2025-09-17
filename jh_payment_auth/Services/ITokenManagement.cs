@@ -1,4 +1,6 @@
-﻿namespace jh_payment_auth.Services
+﻿using jh_payment_auth.Entity;
+
+namespace jh_payment_auth.Services
 {
     /// <summary>
     /// This interface defines the contract for token management services, including JWT token generation.
@@ -8,8 +10,8 @@
         /// <summary>
         /// This method generates a JWT token for the specified user.
         /// </summary>
-        /// <param name="userName"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        string GenerateJwtToken(string userName);
+        string GenerateJwtToken(User user);
     }
 }
