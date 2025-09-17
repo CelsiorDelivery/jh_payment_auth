@@ -48,10 +48,10 @@ namespace jh_payment_auth.Services.Services
             var user = await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{username}");
             if (user == null)
             {
-                return true;
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         /// <summary>
