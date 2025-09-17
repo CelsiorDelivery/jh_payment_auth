@@ -10,7 +10,7 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 namespace jh_payment_auth.Services
 {
     /// <summary>
-    /// Class that generates and manages JWT tokens
+    /// Class that generates and manages JWT and Refresh tokens
     /// </summary>
     public class TokenManagementService : ITokenManagement
     {
@@ -89,12 +89,62 @@ namespace jh_payment_auth.Services
         }
 
         /// <summary>
+        /// Refreshes the access token using the provided refresh token model.
+        /// </summary>
+        /// <remarks>This method validates the provided refresh token to ensure it is not expired and has
+        /// not been revoked. If the token is valid, a new access token and refresh token are generated. The used
+        /// refresh token is marked as revoked.</remarks>
+        /// <param name="refreshTokenModel">The model containing the refresh token and associated metadata, such as the token's expiry date and the
+        /// username.</param>
+        /// <returns>A <see cref="RefreshTokenResult"/> indicating the outcome of the operation. If successful, the result
+        /// contains a new access token, a new refresh token, and the expiry date of the new refresh token. If
+        /// unsuccessful, the result contains an error message.</returns>
+        public RefreshTokenResult RefreshAccessToken(RefreshTokenModel refreshTokenModel)
+        {
+            if (refreshTokenModel == null)
+            {
+                return new RefreshTokenResult { Success = false, Error = "Invalid refresh token" };
+            }
+
+            if (refreshTokenModel.ExpiryDate < DateTime.UtcNow)
+            {
+                // Token has expired, mark it as revoked
+                refreshTokenModel.IsRevoked = true;
+                //await _context.SaveChangesAsync();
+                return new RefreshTokenResult
+                {
+                    Success = false,
+                    Error = "Refresh token expired",
+                    RefreshTokenExpiryDate = refreshTokenModel.ExpiryDate
+                };
+            }
+
+            // Generate new access token
+            var newAccessToken = GenerateJwtToken(refreshTokenModel.Username);
+
+            // Optionally, you can rotate refresh tokens for better security
+            // This is recommended as a security best practice
+            var newRefreshTokenResponse = CreateRefreshToken(refreshTokenModel.Username);
+
+            // Revoke the used refresh token
+            refreshTokenModel.IsRevoked = true;
+
+            return new RefreshTokenResult
+            {
+                Success = true,
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshTokenResponse.RefreshToken,
+                RefreshTokenExpiryDate = newRefreshTokenResponse.ExpiryDate
+            };
+        }
+
+        /// <summary>
         /// Generates a cryptographically secure random refresh token.
         /// </summary>
         /// <remarks>The generated token is a Base64-encoded string derived from 32 bytes of random data.
         /// This method uses a cryptographic random number generator to ensure the token's security.</remarks>
         /// <returns>A Base64-encoded string representing the generated refresh token.</returns>
-        public string GenerateRefreshToken()
+        private string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
             using (var rng = RandomNumberGenerator.Create())
