@@ -6,7 +6,7 @@
     public class UserErrorMessages
     {
         public const string UserAlreadyExistsCode = "USR001";
-        public const string UserAccountAlreadyExists = "An user with this id already exists.";
+        public const string UserAccountAlreadyExists = "An user with this email already exists.";
         public const string UserValidationFailedCode = "COM001";
         public const string UserValidationFailed = "User request validation failed.";
         public const string UserRegistrationFailedCode = "USR002";

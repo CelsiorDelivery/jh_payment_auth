@@ -1,11 +1,11 @@
 ﻿using jh_payment_auth.Models;
 using Microsoft.EntityFrameworkCore;
+using jh_payment_auth.Entity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace jh_payment_auth.Services
 {
@@ -39,13 +39,16 @@ namespace jh_payment_auth.Services
         /// </summary>
         /// <param name="username"></param>
         /// <returns>JWT token string</returns>
-        public string GenerateJwtToken(string username)
+        public string GenerateJwtToken(User user)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+                    //new Claim(JwtRegisteredClaimNames.Sub, user.FirstName),
+                    //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    new Claim(ClaimTypes.NameIdentifier, user.FirstName),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.Role.ToString())
+                };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -69,14 +72,14 @@ namespace jh_payment_auth.Services
         /// </summary>
         /// <remarks>The generated refresh token is valid for 7 days from the time of creation. The token
         /// is not revoked by default.</remarks>
-        /// <param name="userName">The username for which the refresh token is being created. Cannot be null or empty.</param>
+        /// <param name="userEmail">The user email for which the refresh token is being created. Cannot be null or empty.</param>
         /// <returns>A <see cref="RefreshTokenModel"/> containing the generated refresh token and its expiration date.</returns>
-        public RefreshTokenModel CreateRefreshToken(string userName)
+        public RefreshTokenModel CreateRefreshToken(string userEmail)
         {
             var refreshToken = new RefreshTokenModel
             {
                 RefreshToken = GenerateRefreshToken(),
-                Username = userName,
+                UserEmail = userEmail,
                 ExpiryDate = DateTime.UtcNow.AddDays(Convert.ToDouble(_refreshTokenExpiryDays)),
                 IsRevoked = false
             };
@@ -99,7 +102,7 @@ namespace jh_payment_auth.Services
         /// <returns>A <see cref="RefreshTokenResult"/> indicating the outcome of the operation. If successful, the result
         /// contains a new access token, a new refresh token, and the expiry date of the new refresh token. If
         /// unsuccessful, the result contains an error message.</returns>
-        public RefreshTokenResult RefreshAccessToken(RefreshTokenModel refreshTokenModel)
+        public RefreshTokenResult RefreshAccessToken(RefreshTokenModel refreshTokenModel, User user)
         {
             if (refreshTokenModel == null)
             {
@@ -119,12 +122,14 @@ namespace jh_payment_auth.Services
                 };
             }
 
+
+
             // Generate new access token
-            var newAccessToken = GenerateJwtToken(refreshTokenModel.Username);
+            var newAccessToken = GenerateJwtToken(user);
 
             // Optionally, you can rotate refresh tokens for better security
             // This is recommended as a security best practice
-            var newRefreshTokenResponse = CreateRefreshToken(refreshTokenModel.Username);
+            var newRefreshTokenResponse = CreateRefreshToken(user.Email);
 
             // Revoke the used refresh token
             refreshTokenModel.IsRevoked = true;
