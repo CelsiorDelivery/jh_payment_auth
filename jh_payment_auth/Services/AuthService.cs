@@ -1,10 +1,5 @@
 ﻿using jh_payment_auth.Entity;
 using jh_payment_auth.Models;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace jh_payment_auth.Services.Services
 {
@@ -70,7 +65,8 @@ namespace jh_payment_auth.Services.Services
                  {
                      AccessToken = jwtToken,
                      RefreshToken = refreshToken.RefreshToken,
-                     Expiration = refreshToken.ExpiryDate
+                     Expiration = refreshToken.ExpiryDate,
+                     UserDetail = user
                  },
                  "Success"
             );
