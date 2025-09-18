@@ -1,10 +1,5 @@
 ﻿using jh_payment_auth.Entity;
 using jh_payment_auth.Models;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace jh_payment_auth.Services.Services
 {
@@ -43,15 +38,15 @@ namespace jh_payment_auth.Services.Services
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<bool> ValidateUser(string username, string password)
+        public async Task<User> ValidateUser(string username, string password)
         {
             var user = await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{username}");
             if (user == null)
             {
-                return true;
+                throw new Exception("User not found");
             }
 
-            return false;
+            return user;
         }
 
         /// <summary>
@@ -62,10 +57,7 @@ namespace jh_payment_auth.Services.Services
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<ResponseModel> Login(LoginRequest request)
         {
-            if (!await ValidateUser(request.Username, request.Password))
-            {
-                return ErrorResponseModel.Fail("Invalid username or password", "AUT001");
-            }
+            var user = await ValidateUser(request.Username, request.Password);
 
             var jwtToken = _tokenManagement.GenerateJwtToken(request.Username);
             var refreshToken = _tokenManagement.CreateRefreshToken(request.Username);
@@ -75,7 +67,8 @@ namespace jh_payment_auth.Services.Services
                  {
                      AccessToken = jwtToken,
                      RefreshToken = refreshToken.RefreshToken,
-                     Expiration = refreshToken.ExpiryDate
+                     Expiration = refreshToken.ExpiryDate,
+                     UserDetail = user
                  },
                  "Success"
             );
