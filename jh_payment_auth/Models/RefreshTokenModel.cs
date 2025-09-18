@@ -13,7 +13,7 @@ namespace jh_payment_auth.Models
         [Required]
         public string RefreshToken { get; set; }
         [Required]
-        public string Username { get; set; }
+        public string UserEmail { get; set; }
         [Required]
         public DateTime ExpiryDate { get; set; }
         public bool? IsRevoked { get; set; }

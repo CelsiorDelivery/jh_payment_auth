@@ -1,4 +1,6 @@
-﻿namespace jh_payment_auth.Models
+﻿using jh_payment_auth.Entity;
+
+namespace jh_payment_auth.Models
 {
     /// <summary>
     /// The LoginRequest class represents a request to authenticate a user, containing the necessary
@@ -6,9 +8,9 @@
     public class LoginRequest
     {
         /// <summary>
-        /// Represents the username of the user attempting to log in.
+        /// Represents the user email of the user attempting to log in.
         /// </summary>
-        public string Username { get; set; }
+        public string UserEmail { get; set; }
 
         /// <summary>
         /// Represents the password of the user attempting to log in.
@@ -35,5 +37,10 @@
         /// Represents the expiration datetime of the authentication refresh token.
         /// </summary>
         public DateTime Expiration { get; set; }
+
+        /// <summary>
+        /// Userdetail container the user record
+        /// </summary>
+        public User? UserDetail { set; get; }
     }
 }

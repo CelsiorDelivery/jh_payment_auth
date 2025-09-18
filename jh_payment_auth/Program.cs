@@ -1,3 +1,4 @@
+using jh_payment_auth.Entity;
 using jh_payment_auth.Services;
 using jh_payment_auth.Services.Services;
 using jh_payment_auth.Validators;
@@ -55,6 +56,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]))
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole(Roles.Admin.ToString()));
+    options.AddPolicy("MerchantOnly", policy => policy.RequireRole(Roles.Merchant.ToString()));
+});
+
 // Add API Versioning
 builder.Services.AddApiVersioning(options =>
 {
@@ -85,6 +93,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -4,6 +4,7 @@ using jh_payment_auth.Helpers;
 using jh_payment_auth.Models;
 using jh_payment_auth.Services;
 using jh_payment_auth.Validators;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens.Experimental;
@@ -43,6 +44,7 @@ namespace jh_payment_auth.Controllers
         /// response with a success message if the registration is successful,  or a 500 Internal Server Error response
         /// with an error message if the registration fails.</returns>
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegistrationRequest request)
         {
             ResponseModel apiResponse = new ResponseModel();

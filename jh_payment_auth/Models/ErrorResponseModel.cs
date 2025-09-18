@@ -19,22 +19,6 @@ namespace jh_payment_auth.Models
         public string ErrorMessage { set; get; }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="errorMessage"></param>
-        /// <param name="errorCode"></param>
-        /// <returns></returns>
-        public static ErrorResponseModel Fail(string errorMessage, string errorCode)
-        {
-            return new ErrorResponseModel
-            {
-                ResponseBody = "",
-                ErrorCode = errorCode,
-                ErrorMessage = errorMessage ?? "Bad Request",
-            };
-        }
-
-        /// <summary>
         /// This method creates a response model for bad requests with status code 400 (Bad Request).
         /// </summary>
         /// <param name="message"></param>
@@ -59,7 +43,7 @@ namespace jh_payment_auth.Models
             return new ErrorResponseModel
             {
                 StatusCode = HttpStatusCode.InternalServerError,
-                Message = message ?? "Internal Server Error",
+                ErrorMessage = message ?? "Internal Server Error",
                 ErrorCode = errorCode ?? StatusCodes.Status500InternalServerError.ToString(),
             };
         }
