@@ -42,11 +42,11 @@ namespace jh_payment_auth.Services
                 if (validationErrors.Count > 0)
                 {
                     _logger.LogError("User registration validation failed: {Errors}", string.Join(", ", validationErrors));
-                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserValidationFailed+" Validation Errors: \n"+ string.Join(", ", validationErrors), UserErrorMessages.UserValidationFailedCode);                    
+                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserValidationFailed + " Validation Errors: \n" + string.Join(", ", validationErrors), UserErrorMessages.UserValidationFailedCode);
                 }
 
                 // Step 2: Check for existing user.
-                var user = await GetUserData(request.UserId);
+                var user = await GetUserData(request.Email);
                 if (user != null)
                 {
                     _logger.LogError("Registration failed: User with the id {UserId} already exists.", request.UserId);
@@ -66,15 +66,18 @@ namespace jh_payment_auth.Services
                     Password = hashedPassword,
                     Age = request.Age,
                     Mobile = request.PhoneNumber,
-                    Address = request.Address.Street+", "+request.Address.City,
+                    Address = request.Address.Street,
+                    City = request.Address.City,
                     AccountNumber = request.AccountDetails.AccountNumber,
                     BankName = request.AccountDetails.BankName,
                     IFCCode = request.AccountDetails.IFSCCode,
+                    BankCode = request.AccountDetails.BankCode,
                     Branch = request.AccountDetails.Branch,
                     IsActive = true,
                     CVV = request.AccountDetails.CVV,
                     DateOfExpiry = request.AccountDetails.DateOfExpiry,
                     UPIID = request.AccountDetails.UPIId,
+                    Role = request.Role
                 };
 
                 // Step 5: Persist the user data.
@@ -82,7 +85,7 @@ namespace jh_payment_auth.Services
                 if (response == null)
                 {
                     _logger.LogError("User registration failed for email: {Email} and Account Number: {AccountNumber}", request.Email, request.AccountDetails.AccountNumber);
-                    return ErrorResponseModel.InternalServerError(UserErrorMessages.UserRegistrationFailed,UserErrorMessages.UserRegistrationFailedCode);
+                    return ErrorResponseModel.InternalServerError(UserErrorMessages.UserRegistrationFailed, UserErrorMessages.UserRegistrationFailedCode);
                 }
 
                 _logger.LogInformation("User with email: {Email} and Account Number: {AccountNumber} registered successfully.", request.Email, request.AccountDetails.AccountNumber);
@@ -100,7 +103,7 @@ namespace jh_payment_auth.Services
         {
             try
             {
-                return await _httpClientService.PostAsync<User,ResponseModel>("v1/perops/user/adduser", user);                
+                return await _httpClientService.PostAsync<User, ResponseModel>("v1/perops/user/adduser", user);
             }
             catch (Exception ex)
             {
@@ -109,11 +112,11 @@ namespace jh_payment_auth.Services
             return null;
         }
 
-        private async Task<User> GetUserData(long userId)
+        private async Task<User> GetUserData(string email)
         {
             try
             {
-                return await _httpClientService.GetAsync<User>("v1/perops/user/getuser/" + userId);
+                return await _httpClientService.GetAsync<User>("v1/perops/user/getuser/" + email);
             }
             catch (Exception ex)
             {

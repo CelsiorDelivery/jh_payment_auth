@@ -1,4 +1,6 @@
-﻿namespace jh_payment_auth.Models
+﻿using jh_payment_auth.Entity;
+
+namespace jh_payment_auth.Models
 {
     /// <summary>
     /// Represents the bank account details associated with a user, including account number, bank name,
@@ -14,6 +16,8 @@
         /// Gets or sets the name of the bank.
         /// </summary>
         public string BankName { get; set; }
+
+        public string BankCode { set; get; }
 
         /// <summary>
         /// Gets or sets the branch of the bank.
