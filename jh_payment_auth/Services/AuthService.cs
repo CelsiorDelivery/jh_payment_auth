@@ -35,18 +35,12 @@ namespace jh_payment_auth.Services.Services
         /// <summary>
         /// Validates the user credentials against a predefined list of users.
         /// </summary>
-        /// <param name="username"></param>
+        /// <param name="userEmail"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public async Task<User> ValidateUser(string username, string password)
+        public async Task<User> ValidateUser(string userEmail, string password)
         {
-            var user = await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{username}");
-            if (user == null)
-            {
-                throw new Exception("User not found");
-            }
-
-            return user;
+            return await _httpClientService.GetAsync<User>($"v1/perops/User/getuser/{userEmail}");
         }
 
         /// <summary>
@@ -57,10 +51,14 @@ namespace jh_payment_auth.Services.Services
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<ResponseModel> Login(LoginRequest request)
         {
-            var user = await ValidateUser(request.Username, request.Password);
+            var user = await ValidateUser(request.UserEmail, request.Password);
+            if (user == null)
+            {
+                return ErrorResponseModel.BadRequest("Invalid username or password", "AUT001");
+            }
 
-            var jwtToken = _tokenManagement.GenerateJwtToken(request.Username);
-            var refreshToken = _tokenManagement.CreateRefreshToken(request.Username);
+            var jwtToken = _tokenManagement.GenerateJwtToken(user);
+            var refreshToken = _tokenManagement.CreateRefreshToken(request.UserEmail);
 
             return ResponseModel.Ok(
                  new AuthResponse
@@ -72,6 +70,35 @@ namespace jh_payment_auth.Services.Services
                  },
                  "Success"
             );
+        }
+
+        /// <summary>
+        /// This method refreshes the JWT token using the provided refresh token.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<ResponseModel> RefreshToken(RefreshTokenModel request)
+        {
+            var user = await ValidateUser(request.UserEmail, string.Empty);
+            if (user == null)
+            {
+                return ErrorResponseModel.BadRequest("Invalid user", "AUT005");
+            }
+
+            var result = _tokenManagement.RefreshAccessToken(request, user);
+
+            if (!result.Success)
+            {
+                return ErrorResponseModel.InternalServerError(result.Error, "AUT006");
+            }
+
+            return ResponseModel.Ok(new RefreshTokenResult
+            {
+                AccessToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                RefreshTokenExpiryDate = result.RefreshTokenExpiryDate,
+                Success = result.Success
+            }, "Success");            
         }
     }
 }

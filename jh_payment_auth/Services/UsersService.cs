@@ -24,13 +24,11 @@ namespace jh_payment_auth.Services
             _httpClientService = httpClientService;
         }
 
-        // Pseudocode:
-        // 1. After checking for existing user by UserId, also check for existing user by Email and AccountNumber.
-        // 2. If a user exists with the same Email or AccountNumber, return a duplicate error response.
-        // 3. Add new private methods to check for user existence by Email and AccountNumber using IHttpClientService.
-        // 4. Integrate these checks into RegisterUserAsync before creating the new user.
-
-        // Implementation:
+        /// <summary>
+        /// User registration process, including validation, duplication checks, password hashing, and storing user data.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<ResponseModel> RegisterUserAsync(UserRegistrationRequest request)
         {
             try
@@ -46,27 +44,11 @@ namespace jh_payment_auth.Services
                     return ErrorResponseModel.BadRequest(UserErrorMessages.UserValidationFailed + " Validation Errors: \n" + string.Join(", ", validationErrors), UserErrorMessages.UserValidationFailedCode);
                 }
 
-                // Step 2: Check for existing user by UserId.
-                var user = await GetUserData(request.UserId);
+                // Step 2: Check for existing user.
+                var user = await GetUserData(request.Email);
                 if (user != null)
                 {
                     _logger.LogError("Registration failed: User with the id {UserId} already exists.", request.UserId);
-                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserAccountAlreadyExists, UserErrorMessages.UserAlreadyExistsCode);
-                }
-
-                // Step 2a: Check for existing user by Email.
-                var userByEmail = await GetUserByEmail(request.Email);
-                if (userByEmail != null)
-                {
-                    _logger.LogError("Registration failed: User with the email {Email} already exists.", request.Email);
-                    return ErrorResponseModel.BadRequest(UserErrorMessages.UserAccountAlreadyExists, UserErrorMessages.UserAlreadyExistsCode);
-                }
-
-                // Step 2b: Check for existing user by AccountNumber.
-                var userByAccountNumber = await GetUserByAccountNumber(request.AccountDetails.AccountNumber);
-                if (userByAccountNumber != null)
-                {
-                    _logger.LogError("Registration failed: User with the account number {AccountNumber} already exists.", request.AccountDetails.AccountNumber);
                     return ErrorResponseModel.BadRequest(UserErrorMessages.UserAccountAlreadyExists, UserErrorMessages.UserAlreadyExistsCode);
                 }
 
@@ -83,15 +65,18 @@ namespace jh_payment_auth.Services
                     Password = hashedPassword,
                     Age = request.Age,
                     Mobile = request.PhoneNumber,
-                    Address = request.Address.Street + ", " + request.Address.City,
+                    Address = request.Address.Street,
+                    City = request.Address.City,
                     AccountNumber = request.AccountDetails.AccountNumber,
                     BankName = request.AccountDetails.BankName,
                     IFCCode = request.AccountDetails.IFSCCode,
+                    BankCode = request.AccountDetails.BankCode,
                     Branch = request.AccountDetails.Branch,
                     IsActive = true,
                     CVV = request.AccountDetails.CVV,
                     DateOfExpiry = request.AccountDetails.DateOfExpiry,
                     UPIID = request.AccountDetails.UPIId,
+                    Role = request.Role,
                     Balance = request.AccountDetails.Balance
                 };
 
@@ -111,34 +96,7 @@ namespace jh_payment_auth.Services
                 return ErrorResponseModel.InternalServerError(UserErrorMessages.ErrorOccurredWhileRegistringUser, UserErrorMessages.ErrorOccurredWhileRegistringUserCode);
             }
 
-            return ResponseModel.Ok(request, UserErrorMessages.UserRegistrationSuccess);
-        }
-
-        // Add these private helper methods to the class:
-        private async Task<User> GetUserByEmail(string email)
-        {
-            try
-            {
-                return await _httpClientService.GetAsync<User>($"v1/perops/user/getuserbyemail/{email}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "User not found by email");
-            }
-            return null;
-        }
-
-        private async Task<User> GetUserByAccountNumber(string accountNumber)
-        {
-            try
-            {
-                return await _httpClientService.GetAsync<User>($"v1/perops/user/getuserbyaccountnumber/{accountNumber}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "User not found by account number");
-            }
-            return null;
+            return ResponseModel.Ok(request,UserErrorMessages.UserRegistrationSuccess);
         }
 
         private async Task<ResponseModel> AddUserData(User user)
@@ -154,11 +112,11 @@ namespace jh_payment_auth.Services
             return null;
         }
 
-        private async Task<User> GetUserData(long userId)
+        private async Task<User> GetUserData(string email)
         {
             try
             {
-                return await _httpClientService.GetAsync<User>("v1/perops/user/getuser/" + userId);
+                return await _httpClientService.GetAsync<User>("v1/perops/user/getuser/" + email);
             }
             catch (Exception ex)
             {

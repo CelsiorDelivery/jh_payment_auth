@@ -1,4 +1,7 @@
-﻿namespace jh_payment_auth.Entity
+﻿using System.Data;
+using System.Text.Json.Serialization;
+
+namespace jh_payment_auth.Entity
 {
     /// <summary>
     /// 
@@ -23,6 +26,7 @@
         /// <summary>
         /// Represents the password for the user's account.
         /// </summary>
+        [JsonIgnore]
         public string Password { set; get; }
 
         /// <summary>
@@ -61,6 +65,16 @@
         public string IFCCode { set; get; }
 
         /// <summary>
+        /// Represents the bank code of the user's bank.
+        /// </summary>
+        public string BankCode { set; get; }
+
+        /// <summary>
+        /// Represents the city where the user resides.
+        /// </summary>
+        public string City { set; get; }
+
+        /// <summary>
         /// Represents the branch of the user's bank.
         /// </summary>
         public string Branch { set; get; }
@@ -80,6 +94,9 @@
         /// </summary>
         public bool IsActive { set; get; }
 
+        //[JsonConverter(typeof(JsonStringEnumConverter))]
+        public Roles Role { set; get; } = Roles.User;
+
         /// <summary>
         /// Represents the expiry date for CVV.
         /// </summary>
@@ -89,5 +106,12 @@
         /// Represents the balance of the account.
         /// </summary>
         public decimal Balance { set; get; }
+    }
+
+    public enum Roles
+    {
+        User,
+        Admin,
+        Merchant
     }
 }

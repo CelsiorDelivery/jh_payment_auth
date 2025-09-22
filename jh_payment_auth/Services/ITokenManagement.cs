@@ -1,5 +1,7 @@
 ﻿using jh_payment_auth.Models;
 
+using jh_payment_auth.Entity;
+
 namespace jh_payment_auth.Services
 {
     /// <summary>
@@ -10,9 +12,9 @@ namespace jh_payment_auth.Services
         /// <summary>
         /// This method generates a JWT token for the specified user.
         /// </summary>
-        /// <param name="userName"></param>
+        /// <param name="user"></param>
         /// <returns></returns>
-        string GenerateJwtToken(string userName);
+        string GenerateJwtToken(User user);
 
         /// <summary>
         /// Creates a new refresh token for the specified user.
@@ -28,8 +30,9 @@ namespace jh_payment_auth.Services
         /// that the provided  <paramref name="refreshTokenModel"/> contains valid and up-to-date information. The
         /// caller is responsible  for handling any exceptions that may occur during the refresh process.</remarks>
         /// <param name="refreshTokenModel">The model containing the refresh token and any additional information required to obtain a new access token.</param>
+        /// <param name="user">The user entity associated with the refresh token.</param>
         /// <returns>A <see cref="TokenRefreshResult"/> containing the new access token, its expiration time, and any other
         /// relevant details.</returns>
-        RefreshTokenResult RefreshAccessToken(RefreshTokenModel refreshTokenModel);
+        RefreshTokenResult RefreshAccessToken(RefreshTokenModel refreshTokenModel, User user);
     }
 }
