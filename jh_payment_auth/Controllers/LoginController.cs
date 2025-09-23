@@ -56,7 +56,7 @@ namespace jh_payment_auth.Controllers
         /// <description><see cref="UnauthorizedObjectResult"/> if the refresh operation fails due to invalid or expired
         /// tokens.</description> </item> </list></returns>
         [HttpPost("refreshtoken")]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenModel request)
         {
             if (string.IsNullOrEmpty(request.RefreshToken))
