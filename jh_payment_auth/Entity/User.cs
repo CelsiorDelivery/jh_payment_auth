@@ -26,7 +26,6 @@ namespace jh_payment_auth.Entity
         /// <summary>
         /// Represents the password for the user's account.
         /// </summary>
-        [JsonIgnore]
         public string Password { set; get; }
 
         /// <summary>

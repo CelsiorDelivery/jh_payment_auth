@@ -1,4 +1,5 @@
 ﻿using jh_payment_auth.Entity;
+using jh_payment_auth.Helpers;
 using jh_payment_auth.Models;
 
 namespace jh_payment_auth.Services.Services
@@ -52,7 +53,7 @@ namespace jh_payment_auth.Services.Services
         public async Task<ResponseModel> Login(LoginRequest request)
         {
             var user = await ValidateUser(request.UserEmail, request.Password);
-            if (user == null)
+            if (user == null || !user.Password.Equals(Utility.HashPassword(request.Password)))
             {
                 return ErrorResponseModel.BadRequest("Invalid username or password", "AUT001");
             }
