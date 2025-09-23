@@ -1,4 +1,5 @@
 ﻿using jh_payment_auth.DTOs;
+using jh_payment_auth.Entity;
 using jh_payment_auth.Models;
 
 namespace jh_payment_auth.Services
@@ -14,5 +15,10 @@ namespace jh_payment_auth.Services
         /// <param name="request"></param>
         /// <returns>ResponseModel</returns>
         Task<ResponseModel> RegisterUserAsync(UserRegistrationRequest request);
+        /// <summary>
+        /// Retrieves all users from the data store.
+        /// </summary>
+        /// <returns>ResponseModel containing the list of users.</returns>
+        Task<IEnumerable<User>> GetAllUsers();
     }
 }
