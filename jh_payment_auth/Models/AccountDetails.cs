@@ -32,7 +32,7 @@ namespace jh_payment_auth.Models
         /// <summary>
         /// Represents the CVV
         /// </summary>
-        public string CVV {  get; set; }
+        public string CVV { get; set; }
 
         /// <summary>
         /// Represents the UPI id
@@ -47,7 +47,7 @@ namespace jh_payment_auth.Models
         /// <summary>
         /// Gets or sets the type of the account (e.g., Savings, Checking, Loan, Business).
         /// </summary>
-        public string AccountType { get; set; }
+        public AccountType AccountType { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the nominee associated with the account.
@@ -57,7 +57,7 @@ namespace jh_payment_auth.Models
         /// <summary>
         /// Gets or sets the relationship of the nominee to the account holder(e.g., Father, Mother, Spouse, Husband, Brother, Sister, Child).
         /// </summary>
-        public string RelationWithNominee { get; set; }
+        public NomineeRelation RelationWithNominee { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the account is active.
