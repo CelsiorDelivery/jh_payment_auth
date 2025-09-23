@@ -54,7 +54,7 @@ namespace jh_payment_auth.Validators
                     errors.Add(UserErrorMessages.CountryRequired);
                 if (string.IsNullOrWhiteSpace(request.Address.ZipCode))
                     errors.Add(UserErrorMessages.ZipCodeRequired);
-            }        
+            }
 
             if (request.AccountDetails == null)
                 errors.Add(UserErrorMessages.AccountDetailsRequired);
@@ -80,20 +80,11 @@ namespace jh_payment_auth.Validators
                     errors.Add(UserErrorMessages.InitialDepositMinimum);
 
                 // Validate AccountType enum
-                if (string.IsNullOrWhiteSpace(request.AccountDetails.AccountType))
-                {
-                    errors.Add(UserErrorMessages.AccountTypeRequired);
-                }
-                else if (!Enum.TryParse(request.AccountDetails.AccountType, true, out AccountType _))
+                if (!Enum.IsDefined(typeof(AccountType), request.AccountDetails.AccountType))
                 {
                     errors.Add(UserErrorMessages.InvalidAccountType);
                 }
-
-                if (string.IsNullOrWhiteSpace(request.AccountDetails.RelationWithNominee))
-                {
-                    errors.Add(UserErrorMessages.RelationshipRequired);
-                }
-                else if (!Enum.TryParse(request.AccountDetails.RelationWithNominee, true, out NomineeRelation _))
+                if (!Enum.IsDefined(typeof(NomineeRelation), request.AccountDetails.RelationWithNominee))
                 {
                     errors.Add(UserErrorMessages.InvalidRelationship);
                 }

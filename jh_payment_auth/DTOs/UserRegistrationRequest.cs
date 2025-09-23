@@ -54,6 +54,11 @@ namespace jh_payment_auth.DTOs
         /// </summary>
         public AccountDetails AccountDetails { get; set; }
 
+        /// <summary>
+        /// Represents whether the user's account is active.
+        /// </summary>
+        public bool IsActive { set; get; }
+
         public Roles Role { set; get; } = Roles.User;
     }
 }
