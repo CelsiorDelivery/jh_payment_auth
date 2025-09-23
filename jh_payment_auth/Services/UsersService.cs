@@ -4,7 +4,6 @@ using jh_payment_auth.Entity;
 using jh_payment_auth.Helpers;
 using jh_payment_auth.Models;
 using jh_payment_auth.Validators;
-using Microsoft.AspNetCore.Identity;
 
 namespace jh_payment_auth.Services
 {
@@ -77,7 +76,8 @@ namespace jh_payment_auth.Services
                     CVV = request.AccountDetails.CVV,
                     DateOfExpiry = request.AccountDetails.DateOfExpiry,
                     UPIID = request.AccountDetails.UPIId,
-                    Role = request.Role
+                    Role = request.Role,
+                    Balance = request.AccountDetails.Balance
                 };
 
                 // Step 5: Persist the user data.

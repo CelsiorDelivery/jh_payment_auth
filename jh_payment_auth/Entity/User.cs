@@ -101,6 +101,11 @@ namespace jh_payment_auth.Entity
         /// Represents the expiry date for CVV.
         /// </summary>
         public DateTime DateOfExpiry { set; get; }
+
+        /// <summary>
+        /// Represents the balance of the account.
+        /// </summary>
+        public decimal Balance { set; get; }
     }
 
     public enum Roles
