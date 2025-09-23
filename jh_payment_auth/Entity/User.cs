@@ -26,7 +26,6 @@ namespace jh_payment_auth.Entity
         /// <summary>
         /// Represents the password for the user's account.
         /// </summary>
-        [JsonIgnore]
         public string Password { set; get; }
 
         /// <summary>
@@ -101,6 +100,11 @@ namespace jh_payment_auth.Entity
         /// Represents the expiry date for CVV.
         /// </summary>
         public DateTime DateOfExpiry { set; get; }
+
+        /// <summary>
+        /// Represents the balance of the account.
+        /// </summary>
+        public decimal Balance { set; get; }
     }
 
     public enum Roles
