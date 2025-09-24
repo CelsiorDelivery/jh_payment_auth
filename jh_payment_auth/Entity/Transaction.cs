@@ -10,18 +10,18 @@
         /// <summary>
         /// Represents the unique identifier for the transaction.
         /// </summary>
-        public long PaymentId { get; set; }
+        public string PaymentId { get; set; }
 
 
         /// <summary>
         /// Represents the user ID of the sender in the transaction.
         /// </summary>
-        public long FromUserId { get; set; }
+        public string FromUserId { get; set; }
 
         /// <summary>
         /// Represents the user ID of the receiver in the transaction.
         /// </summary>
-        public long ToUserId { get; set; }
+        public string ToUserId { get; set; }
 
         /// <summary>
         /// Represents the amount involved in the transaction.

@@ -48,7 +48,7 @@ namespace jh_payment_auth.Services
                 var user = await GetUserData(request.Email);
                 if (user != null)
                 {
-                    _logger.LogError("Registration failed: User with the id {UserId} already exists.", request.UserId);
+                    _logger.LogError("Registration failed: User with the id {UserId} already exists.", request.Email);
                     return ErrorResponseModel.BadRequest(UserErrorMessages.UserAccountAlreadyExists, UserErrorMessages.UserAlreadyExistsCode);
                 }
 
