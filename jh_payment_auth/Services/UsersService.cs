@@ -48,7 +48,7 @@ namespace jh_payment_auth.Services
                 var user = await GetUserData(request.Email);
                 if (user != null)
                 {
-                    _logger.LogError("Registration failed: User with the id {UserId} already exists.", request.UserId);
+                    _logger.LogError("Registration failed: User with the id {UserId} already exists.", request.Email);
                     return ErrorResponseModel.BadRequest(UserErrorMessages.UserAccountAlreadyExists, UserErrorMessages.UserAlreadyExistsCode);
                 }
 
@@ -96,7 +96,7 @@ namespace jh_payment_auth.Services
                 return ErrorResponseModel.InternalServerError(UserErrorMessages.ErrorOccurredWhileRegistringUser, UserErrorMessages.ErrorOccurredWhileRegistringUserCode);
             }
 
-            return ResponseModel.Ok(request,UserErrorMessages.UserRegistrationSuccess);
+            return ResponseModel.Ok(request, UserErrorMessages.UserRegistrationSuccess);
         }
 
         private async Task<ResponseModel> AddUserData(User user)
@@ -117,6 +117,19 @@ namespace jh_payment_auth.Services
             try
             {
                 return await _httpClientService.GetAsync<User>("v1/perops/user/getuser/" + email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "User not found");
+            }
+            return null;
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsers()
+        {
+            try
+            {
+                return await _httpClientService.GetAsync<List<User>>("v1/perops/user/getall");
             }
             catch (Exception ex)
             {
