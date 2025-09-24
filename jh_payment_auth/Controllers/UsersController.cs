@@ -1,13 +1,9 @@
 ﻿using jh_payment_auth.Constants;
 using jh_payment_auth.DTOs;
-using jh_payment_auth.Helpers;
 using jh_payment_auth.Models;
 using jh_payment_auth.Services;
-using jh_payment_auth.Validators;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens.Experimental;
 using System.Net;
 
 namespace jh_payment_auth.Controllers
@@ -51,7 +47,7 @@ namespace jh_payment_auth.Controllers
             try
             {
                 _logger.LogInformation("Received user registration request for email: {Email}", request.Email);
-                
+
                 apiResponse = await _userService.RegisterUserAsync(request);
 
                 if (apiResponse.StatusCode != System.Net.HttpStatusCode.OK)
@@ -59,11 +55,11 @@ namespace jh_payment_auth.Controllers
                     _logger.LogError("User registration failed: {Errors}");
                     apiResponse.Message = UserErrorMessages.UserRegistrationFailed;
                     return StatusCode(((int)apiResponse.StatusCode), apiResponse);
-                    
+
                 }
                 else
                 {
-                    _logger.LogInformation("User registration successful for email: {Email}", request.Email);                    
+                    _logger.LogInformation("User registration successful for email: {Email}", request.Email);
                     apiResponse.Message = UserErrorMessages.UserRegistrationSuccess;
                     apiResponse.StatusCode = HttpStatusCode.Created;
                     return StatusCode(((int)apiResponse.StatusCode), apiResponse);
@@ -76,5 +72,17 @@ namespace jh_payment_auth.Controllers
                 return StatusCode(((int)apiResponse.StatusCode), apiResponse);
             }
         }
+
+        /// <summary>
+        /// Process request for a list of users.
+        /// </summary>
+        [HttpGet("getall")]
+        public async Task<ResponseModel> GetAllUsers()
+        {
+            var userlist = await _userService.GetAllUsers();
+            return ResponseModel.Ok(userlist);
+
+        }
+
     }
 }
