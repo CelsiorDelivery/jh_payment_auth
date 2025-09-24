@@ -20,7 +20,7 @@ namespace jh_payment_auth.Validators
             var errors = new List<string>();
 
             // Existing validation rules
-            if (request.UserId < 0)
+            if (!Guid.TryParse(request.UserId, out Guid id))
                 errors.Add(UserErrorMessages.InvalidUserId);
 
             if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
