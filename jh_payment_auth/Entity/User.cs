@@ -11,7 +11,7 @@ namespace jh_payment_auth.Entity
         /// <summary>
         /// Represents User ID
         /// </summary>
-        public long UserId { set; get; }
+        public string UserId { set; get; }
 
         /// <summary>
         /// Represents the user's first name

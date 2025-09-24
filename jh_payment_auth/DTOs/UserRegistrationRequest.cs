@@ -12,7 +12,7 @@ namespace jh_payment_auth.DTOs
         /// <summary>
         /// Represents the unique identifier for the user.
         /// </summary>
-        public long UserId { set; get; }
+        public string UserId { set; get; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Gets or sets the first name of the user.
