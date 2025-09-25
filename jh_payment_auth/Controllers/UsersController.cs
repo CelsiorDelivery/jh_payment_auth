@@ -77,6 +77,7 @@ namespace jh_payment_auth.Controllers
         /// Process request for a list of users.
         /// </summary>
         [HttpGet("getall")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ResponseModel> GetAllUsers()
         {
             var userlist = await _userService.GetAllUsers();
